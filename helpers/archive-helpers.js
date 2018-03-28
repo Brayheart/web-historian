@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var http = require('http');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -26,16 +27,55 @@ exports.initialize = function(pathsObj) {
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(callback) {
+  fs.readFile(this.paths.list, (err,data) => {
+    data = data.toString('utf8').split('\n');
+    callback(data);
+  });
 };
 
 exports.isUrlInList = function(url, callback) {
+  var inList = false;
+
+  fs.readFile(this.paths.list, (err,data) => {
+    data = data.toString('utf8').split('\n');
+    if(data.includes(url)){
+      inList = true;
+    }
+    callback(inList);
+  });
 };
 
 exports.addUrlToList = function(url, callback) {
-};
+  var writeStream = fs.writeFile(this.paths.list,url,{flag: 'a'}, (err) => {
+    if (err) throw err;
+    this.isUrlInList(url, function(arg) {
+      callback(arg); 
+    });
+  });
+}
 
 exports.isUrlArchived = function(url, callback) {
+  var isArchived = false;
+
+  fs.readdir(this.paths.archivedSites, (err, files) => {
+    if(files.includes(url)){
+      isArchived = true;
+    }
+    callback(isArchived);
+  });
 };
 
 exports.downloadUrls = function(urls) {
+  urls.forEach(function(url){
+    http.get(`http://${url}`, (res) => {
+      var htmlData = '';
+      res.setEncoding('utf8');
+
+      res.on('data', (dataChunk) => {
+        htmlData += dataChunk;
+      });
+      console.log(htmlData);
+      // res.on('end')
+    });
+  });
 };
