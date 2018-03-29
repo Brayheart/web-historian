@@ -46,7 +46,8 @@ exports.isUrlInList = function(url, callback) {
 };
 
 exports.addUrlToList = function(url, callback) {
-  var writeStream = fs.writeFile(this.paths.list,url,{flag: 'a'}, (err) => {
+  console.log(url);
+  var writeStream = fs.writeFile(this.paths.list, url + '\n', {flag: 'a'}, (err) => {
     if (err) throw err;
     this.isUrlInList(url, function(arg) {
       callback(arg); 
@@ -66,16 +67,36 @@ exports.isUrlArchived = function(url, callback) {
 };
 
 exports.downloadUrls = function(urls) {
+  var correctThis = this;
+
+
   urls.forEach(function(url){
-    http.get(`http://${url}`, (res) => {
+  
+    // if (!correctThis.isUrlInList(url, function(err) {
+    //   if(err) throw err
+    // })) {
+    //   correctThis.addUrlToList(url, function(err) {
+    //     if (err) throw err;
+    //   });
+    // }
+
+    urlSliced = url.slice(4);
+    http.get(`http://${urlSliced}`, (res) => {
+
       var htmlData = '';
-      res.setEncoding('utf8');
 
       res.on('data', (dataChunk) => {
-        htmlData += dataChunk;
+        htmlData += dataChunk.toString('utf8');
       });
-      console.log(htmlData);
-      // res.on('end')
+
+      res.on('end', () => {
+        fs.writeFile(correctThis.paths.archivedSites +'/'+ url, htmlData, (err) => {
+          if(err){
+            console.log("unable to write file");
+          };
+        });
+      });
+
     });
   });
 };

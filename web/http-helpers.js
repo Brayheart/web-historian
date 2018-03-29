@@ -19,14 +19,15 @@ exports.serveAssets = function(res, asset, callback) {
       if(err) throw err;
       callback(data);
     });
+  // }
+  // else if(){
+
   }else{
     
-    // archive.isUrlArchived(archive.paths.archivedSites + '/' + asset, function(isArchived){
-    //   return isArchived;
-    // });
     fs.readFile(archive.paths.archivedSites + '/' + asset, (err,data) => {
       if(err){
-        // res.writeHead(404,httpHelp.headers);
+        res.writeHead(404,this.headers);
+        res.end();
       };
       callback(data);
     });
