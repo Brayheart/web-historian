@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
 var http = require('http');
+var request = require('request');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -68,24 +69,24 @@ exports.downloadUrls = function(urls) {
   var correctThis = this;
 
   urls.forEach(function(url){
+    console.log(url);
+    //urlSliced = url.slice(4);
+    // http.get(url, (res) => {
 
-    urlSliced = url.slice(4);
-    http.get(`http://${urlSliced}`, (res) => {
+    //   var htmlData = '';
 
-      var htmlData = '';
+    //   res.on('data', (dataChunk) => {
+    //     htmlData += dataChunk.toString('utf8');
+    //   });
 
-      res.on('data', (dataChunk) => {
-        htmlData += dataChunk.toString('utf8');
-      });
-
-      res.on('end', () => {
-        fs.writeFile(correctThis.paths.archivedSites +'/'+ url, htmlData, (err) => {
-          if(err){
-            console.log("unable to write file");
-          };
-        });
-      });
-
-    });
+    //   res.on('end', () => {
+    //     fs.writeFile(correctThis.paths.archivedSites +'/'+ url, htmlData, (err) => {
+    //       if(err){
+    //         console.log("unable to write file");
+    //       };
+    //     });
+    //   });
+if (!url) return;
+    request.get('http://'+ url).pipe(fs.createWriteStream(exports.paths.archivedSites + '/' + url));
   });
 };

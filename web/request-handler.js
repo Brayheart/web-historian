@@ -69,7 +69,7 @@ exports.handleRequest = function(req, res) {
               httpHelp.serveAssets(res, site.slice(4), function(htmlText) {
                 //if Url is in list, and url is archived, send user to archived html file
                 res.writeHead(200, httpHelp.headers);
-                res.end(data, "utf8");
+                res.end(htmlText, "utf8");
               });
             } else {
               //redirect them to the "loading page" (i.e loading.html)
