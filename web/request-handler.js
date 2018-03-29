@@ -16,6 +16,17 @@ exports.handleRequest = function (req, res) {
       res.end(data,'utf8');
     });
   }else if(req.method === "POST"){
+/*
+    when making a POST request check if site is already located in sites.txt 
+    if it is in sites.txt and it is in archives get the page and display the page
+    if not add it to sites.txt and add the site to the archives sites folder by downloading
+    it into the archive/sites folder, but also redirect them to the loading.html page since it 
+    is not found in the archive/sites folder. 
+
+    archive contains all the sites we do have.
+    sites.txt contains all the sites we "should"" have
+*/ 
+    archive.isUrlInList()
 
     var site = '';
     req.on('data', (dataChunk) => {
@@ -23,7 +34,17 @@ exports.handleRequest = function (req, res) {
     });
 
     req.on('end',() => {
+      var nList = false;
+      var urlArchived = false;
 
+      // archive.isUrlInList(site.slice(4), function(nList){
+      //   if(nList){
+      //     console.log("yay");
+      //   }
+      // });
+
+      // console.log(nList);
+      
       archive.addUrlToList(site.slice(4), (added) =>{
         if(added){
           console.log("successfully added");

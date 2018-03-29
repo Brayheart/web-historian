@@ -49,9 +49,7 @@ exports.addUrlToList = function(url, callback) {
   console.log(url);
   var writeStream = fs.writeFile(this.paths.list, url + '\n', {flag: 'a'}, (err) => {
     if (err) throw err;
-    this.isUrlInList(url, function(arg) {
-      callback(arg); 
-    });
+    callback(true); 
   });
 }
 
