@@ -1,22 +1,19 @@
-var path = require('path');
-var archive = require('../helpers/archive-helpers');
-var httpHelp = require('../web/http-helpers');
-// var fs = require('fs');
+var path = require("path");
+var archive = require("../helpers/archive-helpers");
+var httpHelp = require("../web/http-helpers");
+var worker = require("../workers/htmlfetcher");
+var fs = require("fs");
 
+exports.handleRequest = function(req, res) {
+  console.log("Serving request type " + req.method + " for url " + req.url);
 
-
-exports.handleRequest = function (req, res) {
-
-  console.log('Serving request type ' + req.method + ' for url ' + req.url);
-  
-
-  if(req.method === "GET"){
-    httpHelp.serveAssets(res,req.url, (data) => {
-      res.writeHead(200,httpHelp.headers);
-      res.end(data,'utf8');
+  if (req.method === "GET") {
+    httpHelp.serveAssets(res, req.url, data => {
+      res.writeHead(200, httpHelp.headers);
+      res.end(data, "utf8");
     });
-  }else if(req.method === "POST"){
-/*
+  } else if (req.method === "POST") {
+    /*
     when making a POST request check if site is already located in sites.txt 
     if it is in sites.txt and it is in archives get the page and display the page
     if not add it to sites.txt and add the site to the archives sites folder by downloading
@@ -25,37 +22,8 @@ exports.handleRequest = function (req, res) {
 
     archive contains all the sites we do have.
     sites.txt contains all the sites we "should"" have
-*/ 
-    archive.isUrlInList()
 
-    var site = '';
-    req.on('data', (dataChunk) => {
-      site += dataChunk.toString('utf8');
-    });
-
-    req.on('end',() => {
-      var nList = false;
-      var urlArchived = false;
-
-      // archive.isUrlInList(site.slice(4), function(nList){
-      //   if(nList){
-      //     console.log("yay");
-      //   }
-      // });
-
-      // console.log(nList);
-      
-      archive.addUrlToList(site.slice(4), (added) =>{
-        if(added){
-          console.log("successfully added");
-        }
-      });
-
-      res.writeHead(302, httpHelp.headers);
-      res.end();
-    });
-
-    //on POST
+        //on POST
       //if post url is not in text file or archived
         //get request for url
         //add url to list and archive url get request
@@ -64,9 +32,52 @@ exports.handleRequest = function (req, res) {
         //check to see if archived
           //if not get request
         //if archive show user archived url
-      if (!archive.isUrlInList(site, (err) => {})) {
+*/
 
-      }
+    // archive.isUrlInList()
 
+    var site = "";
+    req.on("data", dataChunk => {
+      //whenever you are receiving data grab the data chunk from the request
+      site += dataChunk.toString("utf8");
+    });
+
+    req.on("end", () => {
+      //when the request is "ending""
+      var nList = false;
+      var urlArchived = false;
+
+      archive.isUrlInList(site.slice(4), function(isTrue) {
+        //check if url is in sites.txt
+        nList = isTrue;
+
+        if (!nList) {
+          archive.addUrlToList(site.slice(4), added => {
+            //if url is not in list, add url to list
+            if (added) {
+              console.log("successfully added");
+            }
+          });
+          //redirect them to the "loading page" (i.e loading.html)
+            httpHelp.serveAssets(res, '/loading.html', function() {})
+        } else {
+          archive.isUrlArchived(site.slice(4), function(isTrue) {
+            //if url is in list check if url is archived
+            urlArchived = isTrue;
+
+            if (urlArchived) {
+              httpHelp.serveAssets(res, site.slice(4), function(htmlText) {
+                //if Url is in list, and url is archived, send user to archived html file
+                res.writeHead(200, httpHelp.headers);
+                res.end(data, "utf8");
+              });
+            } else {
+              //redirect them to the "loading page" (i.e loading.html)
+              httpHelp.serveAssets(res, '/loading.html', function() {})
+            }
+          });
+        }
+      });
+    });
   }
 };

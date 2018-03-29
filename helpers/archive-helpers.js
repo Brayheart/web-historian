@@ -38,6 +38,7 @@ exports.isUrlInList = function(url, callback) {
 
   fs.readFile(this.paths.list, (err,data) => {
     data = data.toString('utf8').split('\n');
+    //console.log('here', data, url)
     if(data.includes(url)){
       inList = true;
     }
@@ -46,7 +47,6 @@ exports.isUrlInList = function(url, callback) {
 };
 
 exports.addUrlToList = function(url, callback) {
-  console.log(url);
   var writeStream = fs.writeFile(this.paths.list, url + '\n', {flag: 'a'}, (err) => {
     if (err) throw err;
     callback(true); 
@@ -67,16 +67,7 @@ exports.isUrlArchived = function(url, callback) {
 exports.downloadUrls = function(urls) {
   var correctThis = this;
 
-
   urls.forEach(function(url){
-  
-    // if (!correctThis.isUrlInList(url, function(err) {
-    //   if(err) throw err
-    // })) {
-    //   correctThis.addUrlToList(url, function(err) {
-    //     if (err) throw err;
-    //   });
-    // }
 
     urlSliced = url.slice(4);
     http.get(`http://${urlSliced}`, (res) => {
